@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# File containing the Discord token
+*.token
