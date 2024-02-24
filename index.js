@@ -1,7 +1,9 @@
 const Discord = require('discord.js');
+const fs = require("fs");
+const path = require('path');
 
 const client = new Discord.Client();
-const token = 'YOUR_BOT_TOKEN'; //! Replace with your own!
+const token = fs.readFileSync(path.join(__dirname, "discord.token"), 'utf8'); // Read token from file
 
 let modlist = ["cablesalty", "bugzumdev"] // Add your discord username here to tell the bot you are an admin
 
@@ -21,7 +23,7 @@ client.on('message', message => {
             // TODO: Implement torture            
         } else {
             message.channel.send("✋🛑 **You are not permitted to torture people!**\n*This action will be logged and sent to admins!*")
-            
+
         }
     }
 });
