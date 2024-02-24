@@ -1,0 +1,22 @@
+{
+  "name": "jozsiba-bot",
+  "version": "1.0.0",
+  "description": "Egy meme Discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cablesalty/Jozsiba-bot.git"
+  },
+  "author": "cablesalty",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/cablesalty/Jozsiba-bot/issues"
+  },
+  "homepage": "https://github.com/cablesalty/Jozsiba-bot#readme",
+  "dependencies": {
+    "discord.js": "^14.12.1"
+  }
+}
