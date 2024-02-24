@@ -15,15 +15,15 @@ client.on('ready', () => {
 
 client.on('message', message => {
     // Commands
-    if (message.content.startsWith('/test') || message.content.startsWith('!test')) { // Test command
+    if (message.content.startsWith('!test')) { // Test command
 
         message.channel.send(`🟢 **Bot is online and working!**\nTest request by ${message.author.username}`);
     } else if (message.content.startsWith("!torture")) { // Use on somebody who is not behaving well
         if (modlist.includes(message.author.username)) {
-            // TODO: Implement torture            
+            let target = message.content.slice(9); // Remove first 9 chars to get who to torture
+            message.channel.send("🔫😀 **" + target + " will regret joining this server...**")
         } else {
-            message.channel.send("✋🛑 **You are not permitted to torture people!**\n*This action will be logged and sent to admins!*")
-
+            message.channel.send("✋🛑 **You are not permitted to torture people!**")
         }
     }
 });
