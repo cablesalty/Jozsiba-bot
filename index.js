@@ -75,8 +75,11 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-client.on('messageCreate', message => {
-    console.log(message);
+// Event listener: Üzenetek olvasása
+client.on('messageCreate', async message => {
+    if (message.author.bot) return;
+
+    console.log(`Új üzenet: "${message.content}" (${message.author.tag})`);
 });
 
 
