@@ -6,7 +6,7 @@ const client = new Client({
     intents: 8
 });
 
-const token = fs.readFileSync(path.join(__dirname, "discord.token"), 'utf8'); // Bot token olvasása fájlból
+const token = fs.readFileSync(process.env.DISCORDBOTTOKEN, 'utf8'); // Bot token olvasása environ-ból
 
 // Add hozzá a listához a Discord felhasználónevedet hogy megmond
 // a botnak hogy moderátor vagy
