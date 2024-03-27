@@ -99,18 +99,23 @@ client.on('interactionCreate', async interaction => {
 
         await interaction.reply({ embeds: [embed] });
     } else if (commandName == "oltás") {
-        const username = options.getUser('kit').username;
+        const targetUser = options.getUser('kit');
+        const username = targetUser.username;
+
         fs.readFile(path.join(__dirname, "oltasdb.txt"), 'utf8', (err, data) => {
             if (err) {
                 console.error(err);
                 interaction.reply(`Hiba történt!`);
                 return;
             }
-            if (!data.trim() == "") {
+
+            if (data.trim() !== "") {
                 let oltasdb = data.split(/\r?\n/);
+                let replyMessage = `<@${targetUser.id}>\n`;
                 for (const oltas of oltasdb) {
-                    interaction.reply(`<@${username}>\n${oltas}`);
+                    replyMessage += `${oltas}\n`;
                 }
+                interaction.reply(replyMessage);
             } else {
                 interaction.reply(`Jelenleg nincs oltás az oltás adatbázisban (oltasdb).\nAdj hozzá egy saját oltást a "/addoltás" parancssal.`);
             }
