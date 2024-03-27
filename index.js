@@ -137,9 +137,9 @@ client.on('interactionCreate', async interaction => {
                 if (data.trim() !== "") {
                     let oltasdb = data.split(/\r?\n/);
                     let replyMessage = `<@${targetUser.id}>\n`;
-                    for (const oltas of oltasdb) {
-                        replyMessage += `${oltas}\n`;
-                    }
+                    const randomIndex = Math.floor(Math.random() * oltasdb.length);
+                    const randomValue = oltasdb[randomIndex];
+                    replyMessage += `${randomValue}\n`;
                     interaction.reply(replyMessage);
                 } else {
                     interaction.reply(`Jelenleg nincs oltás az oltás adatbázisban (oltasdb).\nAdj hozzá egy saját oltást a "/addoltás" parancssal.`);
