@@ -15,7 +15,7 @@ let modlist = ["cablesalty", "bugzumdev"]
 
 // Event listener: Készen áll e a kliens (bot)
 client.once('ready', () => {
-    console.log(`Logged in as ${client.user.tag}`);
+    console.log(`Bejelentkezve mint ${client.user.tag}`);
     
     // [/] parancsok regisztrálása
     const guildId = '1210887545714380820'; // Változtasd meg a saját szerver ID-d re
@@ -34,7 +34,8 @@ client.once('ready', () => {
         }
     ];
 
-    client.guilds.cache.get(guildId)?.commands.set(commands).then(() => {
+    // Parancsok regisztrálása globálisan
+    client.application?.commands.set(commands).then(() => {
         console.log('[/] parancsok regisztrálva');
     }).catch(console.error);
 });
