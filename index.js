@@ -166,8 +166,12 @@ client.on('interactionCreate', async interaction => {
     } else if (commandName == "cmdban") {
         const targetUser = options.getUser('célpont').username;
         if (modlist.includes(user.username)) {
-            ignorelist.push(targetUser);
-            await interaction.reply(`Mostantól ${targetUser}-t le fogom szarni.`);
+            if (targetUser == "Jozsibá" || targetUser == "Józsibá") {
+                await interaction.reply(`Mégis magamat hogy ignoráljam?`);    
+            } else {
+                ignorelist.push(targetUser);
+                await interaction.reply(`Mostantól ${targetUser}-t le fogom szarni.`);
+            }
         } else {
             console.log(user.username)
             await interaction.reply(`Te nem vagy moderátor, te alsóbbrendű vagy.`);
