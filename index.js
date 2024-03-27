@@ -109,10 +109,10 @@ client.on('interactionCreate', async interaction => {
             if (!data.trim() == "") {
                 let oltasdb = data.split(/\r?\n/);
                 for (const oltas of oltasdb) {
-                    interaction.reply(`@${username}\n${oltas}`);
+                    interaction.reply(`<@${username}>\n${oltas}`);
                 }
             } else {
-                interaction.reply(`Jelenleg nincs oltás az oltás adatbázisban (oltasdb).\nAdj hozzá egy saját oltást a "/addoltas" parancssal.`);
+                interaction.reply(`Jelenleg nincs oltás az oltás adatbázisban (oltasdb).\nAdj hozzá egy saját oltást a "/addoltás" parancssal.`);
             }
         });
     } else if (commandName == "addoltás") {
