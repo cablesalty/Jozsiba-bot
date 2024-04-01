@@ -149,10 +149,10 @@ client.on('interactionCreate', async interaction => {
             await interaction.reply(`Inkább téged kéne oltani.`);
         }
     } else if (commandName == "addoltás") {
-        const content = options.getString("oltas") + "\n";
+        const content = "\n" + options.getString("oltas");
 
         if (!ignorelist.includes(user.username)) {
-            fs.writeFile(path.join(__dirname, "oltasdb.txt"), content, err => {
+            fs.appendFile(path.join(__dirname, "oltasdb.txt"), content, err => {
                 if (err) {
                     console.error(err);
                     interaction.reply(`Nem tudtuk hozzáadni az oltást az oltás adatbázishoz.`);
