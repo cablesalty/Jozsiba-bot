@@ -43,6 +43,11 @@ client.once('ready', () => {
         },
 
         {
+            name: 'oltásdb',
+            description: 'Nézd meg hány oltást tartalmaz az adatbázis'
+        },
+
+        {
             name: 'oltás',
             description: 'Olts le valaki',
             options: [
@@ -147,6 +152,26 @@ client.on('interactionCreate', async interaction => {
             });
         } else {
             await interaction.reply(`Inkább téged kéne oltani.`);
+        }
+    } else if (commandName == "oltásdb") {
+        if (!ignorelist.includes(user.username)) {
+            fs.readFile(path.join(__dirname, "oltasdb.txt"), 'utf8', (err, data) => {
+                if (err) {
+                    console.error(err);
+                    interaction.reply(`Hiba történt!`);
+                    return;
+                }
+
+                let oltasdb = data.split(/\r?\n/);
+
+                if (oltasdb.length > 0) {
+                    interaction.reply("Jelenleg " + oltasdb.length.toString() + " oltás van az adatbázisban.\nAdj hozzá te is egyet a /oltásadd parancssal!");
+                } else {
+                    interaction.reply(`Jelenleg nincs oltás az oltás adatbázisban (oltasdb).\nAdj hozzá egy saját oltást a "/addoltás" parancssal.`);
+                }
+            });
+        } else {
+            await interaction.reply(`Ezt miért akarod tudni? ROHAGGYÁMEG!`);
         }
     } else if (commandName == "addoltás") {
         const content = "\n" + options.getString("oltas");
