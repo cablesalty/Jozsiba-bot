@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/cablesalty/Jozsiba-bot#readme",
   "dependencies": {
-    "discord.js": "^14.12.1"
+    "discord.js": "^14.12.1",
+    "openai": "^4.38.1"
   }
 }

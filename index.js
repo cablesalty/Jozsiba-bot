@@ -2,10 +2,30 @@ const { Client, Intents, EmbedBuilder } = require('discord.js');
 const fs = require("fs");
 const path = require('path');
 const os = require("os");
+const OpenAI = require("openai");
 
 const client = new Client({
     intents: 8
 });
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAIKEY || "" // SeCRET
+});
+
+const months = [
+    "Január",
+    "Február",
+    "Március",
+    "Április",
+    "Május",
+    "Június",
+    "Július",
+    "Augusztus",
+    "Szeptember",
+    "Október",
+    "November",
+    "December"
+];
 
 const token = process.env.DISCORDBOTTOKEN; // Bot token olvasása environ-ból
 
@@ -15,6 +35,76 @@ let modlist = ["cablesalty", "bugzumdev"];
 
 // Parancs ban lista
 let ignorelist = [];
+let premiumlist = [];
+
+// premiumlist olvasása
+const stream = fs.createReadStream(path.join(__dirname, "premiumlist.txt"), { encoding: 'utf8' });
+
+stream.on('data', (data) => {
+    const newLines = data.split('\n');
+    newLines.forEach(line => {
+        if (line.trim() !== '') {
+            premiumlist.push(line.trim());
+        }
+    });
+});
+
+stream.on('end', () => {
+    console.log(premiumlist);
+});
+
+stream.on('error', (err) => {
+    console.error('Error reading file:', err);
+});
+
+// AI Kérdezés
+let lastaimessage = ""
+let lastusermessage = ""
+async function chatgpt(message) {
+    let completedText = "";
+
+    let stream;
+    let dateobj = new Date();
+    let time = dateobj.getHours().toString() + ":" + dateobj.getMinutes().toString();
+    let date = dateobj.getFullYear().toString() + " " + months[dateobj.getMonth()] + " " + dateobj.getDate().toString();
+
+    if (lastusermessage) {
+        let messages = [
+            { role: "system", content: "Te egy bot vagy akinek kérdéseket tesznek fel egy Discord szerverből amit úgy hívnak hogy 'Pálesz Klub'."}
+        ];
+        messages.push({ role: "system", content: "A jelenlegi dátum és pontos idő: " + date + " " + time}),
+        messages.push({ role: "user", content: lastusermessage });
+        messages.push({ role: "assistant", content: lastaimessage });
+        messages.push({ role: "user", content: message });
+        console.log(messages);
+        stream = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: messages,
+            stream: true,
+        });
+    } else {
+        let messages = [
+            { role: "system", content: "Te egy bot vagy akinek kérdéseket tesznek fel egy Discord szerverből amit úgy hívnak hogy 'Pálesz Klub'."}
+        ];
+        messages.push({ role: "system", content: "A jelenlegi dátum és pontos idő: " + date + " " + time});
+        messages.push({ role: "user", content: message });
+        console.log(messages);
+        stream = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: messages,
+            stream: true,
+        });
+    }
+
+    for await (const chunk of stream) {
+        completedText += chunk.choices[0]?.delta?.content || "";
+    }
+
+    lastusermessage = message;
+    lastaimessage = completedText;
+
+    return completedText;
+}
 
 
 // Event listener: Készen áll e a kliens (bot)
@@ -61,6 +151,19 @@ client.once('ready', () => {
         },
 
         {
+            name: 'addpremium',
+            description: 'Prémium tag hozzáadása (ADMIN ONLY)',
+            options: [
+                {
+                    name: 'tag',
+                    type: 6,
+                    description: "Akit hozzá szeretnél adni",
+                    required: true
+                }
+            ]
+        },
+
+        {
             name: 'addoltás',
             description: 'Oltás hozzáadása az oltás adatbázishoz.',
             options: [
@@ -68,6 +171,19 @@ client.once('ready', () => {
                     name: 'oltas',
                     type: 3,
                     description: 'Ide írd az oltásodat.',
+                    required: true
+                }
+            ]
+        },
+
+        {
+            name: 'chatgpt',
+            description: 'GPT-4 (nekem fizetős) AI megkérdezése (PREMIUM ONLY)',
+            options: [
+                {
+                    name: 'kerdes',
+                    type: 3,
+                    description: 'Ide írd a kérdésedet a GPT-4 nek!',
                     required: true
                 }
             ]
@@ -97,7 +213,7 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return; // Ha nem parancs, lépjen vissza
 
-    const { commandName, options, user } = interaction; // Pár változó kivétele az interakcióból
+    const { commandName, options, user, member } = interaction; // Pár változó kivétele az interakcióból
 
     if (commandName === 'kínzás') {
         if (!ignorelist.includes(user.username)) {
@@ -187,6 +303,36 @@ client.on('interactionCreate', async interaction => {
             });
         } else {
             await interaction.reply(`A többieket sem érdekli hogy mit akarsz mondani. Akkor miért érdekelne engem?`);
+        }
+    } else if (commandName == "addpremium") {
+        const content = "\n" + options.getUser("tag").username;
+
+        if (modlist.includes(user.username)) {
+            fs.appendFile(path.join(__dirname, "premiumlist.txt"), content, err => {
+                if (err) {
+                    console.error(err);
+                    interaction.reply(`**RENDSZERHIBA!** Nem tudtuk hozzáadni ${content}-t a PREMIUM listához!`);
+                } else {
+                    premiumlist.push(content);
+                    interaction.reply(`ÚJ PREMIUM TAG! ${content.toUpperCase()} MOSTMÁR PREMIUM TAG!`);
+                }
+            });
+        } else {
+            await interaction.reply(`Nem vagy admin. kuss.`);
+        }
+    } else if (commandName == "chatgpt") {
+        const question = "\n" + options.getString("kerdes");
+
+        if (!ignorelist.includes(user.username)) {
+            if (premiumlist.includes(user.username)) { 
+                await interaction.reply(`ChatGPT: ${await chatgpt(question)}\n\n**Emlékeztető üzenet:** Ez a prémium funkció PÍNZBE (*erősen gyenge* magyar forintokba) kerülnek! **GPT-4 en fut** (elő kell fizetni ChatGPT Plus-ra ha simán használod, de ez az API verzó)! Kérdezd cablesalty-t ha te is Premium tag akarsz lenni!`);
+            } else {
+                console.log(premiumlist);
+                console.log(user.username);
+                await interaction.reply("Nem vagy Premium tag!");
+            }
+        } else {
+            await interaction.reply(`Neked inkább agyi implant kéne AI helyett...`);
         }
     } else if (commandName == "cmdban") {
         const targetUser = options.getUser('célpont').username;
